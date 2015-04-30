@@ -4,7 +4,7 @@ node[:ebs][:volumes].each do |mount_point, options|
   next if File.read('/etc/mtab').split("\n").any?{|line| line.match(" #{mount_point} ")}
 
   # create ebs volume
-  if !options[:device]
+  if !options[:device] && options[:size]
     if node[:ebs][:creds][:encrypted]
       credentials = Chef::EncryptedDataBagItem.load(node[:ebs][:creds][:databag], node[:ebs][:creds][:item])
     else
