@@ -7,11 +7,12 @@ execute "Load device mapper kernel module" do
   command "modprobe dm-mod"
   ignore_failure true
 end
-
-if node[:ebs][:creds][:encrypted]
-  credentials = Chef::EncryptedDataBagItem.load(node[:ebs][:creds][:databag], node[:ebs][:creds][:item])
-else
-  credentials = data_bag_item node[:ebs][:creds][:databag], node[:ebs][:creds][:item]
+if !node[:ebs][:creds][:iam_roles]
+  if node[:ebs][:creds][:encrypted]
+    credentials = Chef::EncryptedDataBagItem.load(node[:ebs][:creds][:databag], node[:ebs][:creds][:item])
+  else
+    credentials = data_bag_item node[:ebs][:creds][:databag], node[:ebs][:creds][:item]
+  end
 end
 
 node[:ebs][:raids].each do |device, options|
@@ -19,7 +20,7 @@ node[:ebs][:raids].each do |device, options|
   if !options[:disks] && options[:num_disks]
     devices = Dir.glob('/dev/xvd*')
     if devices.empty?
-      next_mount = "a"
+      next_mount = "g"
     else
       next_mount = devices.map{ |x| x[0,9] }.uniq.sort.last[-1,1].succ
     end
