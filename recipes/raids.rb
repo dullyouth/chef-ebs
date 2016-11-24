@@ -7,11 +7,12 @@ execute "Load device mapper kernel module" do
   command "modprobe dm-mod"
   ignore_failure true
 end
-
-if node[:ebs][:creds][:encrypted]
-  credentials = Chef::EncryptedDataBagItem.load(node[:ebs][:creds][:databag], node[:ebs][:creds][:item])
-else
-  credentials = data_bag_item node[:ebs][:creds][:databag], node[:ebs][:creds][:item]
+if !node[:ebs][:creds][:iam_roles]
+  if node[:ebs][:creds][:encrypted]
+    credentials = Chef::EncryptedDataBagItem.load(node[:ebs][:creds][:databag], node[:ebs][:creds][:item])
+  else
+    credentials = data_bag_item node[:ebs][:creds][:databag], node[:ebs][:creds][:item]
+  end
 end
 
 node[:ebs][:raids].each do |device, options|
