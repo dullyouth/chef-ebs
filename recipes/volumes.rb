@@ -16,6 +16,7 @@ node[:ebs][:volumes].each do |mount_point, options|
     devices = Dir.glob('/dev/xvd?')
     devices = ['/dev/xvdf'] if devices.empty?
     devid = devices.sort.last[-1,1].succ
+    devid = 'f' unless devid >= 'f'
     device = "/dev/sd#{devid}"
   else
     devices = ["#{options[:device]}"]
